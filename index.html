@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diseñador de Hábitats Espaciales - NASA</title>
+    <title>Explorador de Hábitat Espacial - Primera Persona</title>
     <style>
         * {
             margin: 0;
@@ -13,175 +13,125 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #0f0f1e 100%);
+            background: #000;
             color: #fff;
-            min-height: 100vh;
+            overflow: hidden;
+            cursor: none;
         }
         
-        .container {
-            display: grid;
-            grid-template-columns: 350px 1fr;
+        #container {
+            width: 100vw;
             height: 100vh;
         }
         
-        /* Panel de controles */
-        .controls-panel {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            overflow-y: auto;
-            border-right: 2px solid #00a8e8;
+        .crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: 100;
         }
         
-        header {
-            margin-bottom: 30px;
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(0, 255, 136, 0.8);
         }
         
-        h1 {
-            font-size: 24px;
-            color: #00a8e8;
-            margin-bottom: 5px;
+        .crosshair::before {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            transform: translateX(-50%);
         }
         
-        .subtitle {
-            font-size: 12px;
-            color: #888;
-        }
-        
-        .section {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0, 168, 232, 0.3);
-        }
-        
-        .section h2 {
-            font-size: 16px;
-            color: #00a8e8;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .section h2::before {
-            content: "▶";
-            font-size: 12px;
-        }
-        
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 5px;
-            color: #ccc;
-        }
-        
-        select, input[type="number"], input[type="range"] {
+        .crosshair::after {
             width: 100%;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(0, 168, 232, 0.5);
-            border-radius: 5px;
-            color: #fff;
-            font-size: 14px;
+            height: 2px;
+            top: 50%;
+            transform: translateY(-50%);
         }
         
-        input[type="range"] {
-            padding: 0;
+        .hud {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: 2px solid #00ff88;
+            display: flex;
+            gap: 30px;
         }
         
-        .value-display {
-            float: right;
+        .hud-item {
+            text-align: center;
+        }
+        
+        .hud-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        
+        .hud-value {
+            font-size: 18px;
             color: #00ff88;
             font-weight: bold;
         }
         
-        button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #00a8e8, #0077b6);
-            border: none;
-            border-radius: 8px;
-            color: white;
+        .controls-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #00a8e8;
+            max-width: 250px;
+        }
+        
+        .controls-info h3 {
+            color: #00a8e8;
+            margin-bottom: 10px;
             font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.2s;
         }
         
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 168, 232, 0.4);
-        }
-        
-        .areas-list {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-        
-        .area-item {
-            background: rgba(0, 168, 232, 0.2);
-            padding: 8px;
-            border-radius: 5px;
-            margin-bottom: 5px;
+        .controls-info p {
             font-size: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 5px;
+            color: #ccc;
         }
         
-        .area-item.warning {
-            background: rgba(255, 165, 0, 0.3);
-            border-left: 3px solid orange;
-        }
-        
-        .area-item.valid {
+        .controls-info .key {
+            display: inline-block;
             background: rgba(0, 255, 136, 0.2);
-            border-left: 3px solid #00ff88;
-        }
-        
-        .remove-btn {
-            background: #ff4444;
-            border: none;
-            color: white;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 3px;
-            cursor: pointer;
+            color: #00ff88;
+            font-weight: bold;
             font-size: 11px;
         }
         
-        /* Visor 3D */
-        .viewer {
-            position: relative;
-            background: #000;
-        }
-        
-        #canvas-container {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .stats-overlay {
+        .stats {
             position: absolute;
             top: 20px;
             right: 20px;
             background: rgba(0, 0, 0, 0.8);
             padding: 15px;
             border-radius: 10px;
-            border: 1px solid #00a8e8;
-            min-width: 200px;
+            border: 2px solid #ffaa00;
         }
         
-        .stats-overlay h3 {
-            color: #00a8e8;
-            font-size: 14px;
+        .stats h3 {
+            color: #ffaa00;
             margin-bottom: 10px;
+            font-size: 14px;
         }
         
         .stat-row {
@@ -189,6 +139,7 @@
             justify-content: space-between;
             margin-bottom: 5px;
             font-size: 12px;
+            gap: 15px;
         }
         
         .stat-label {
@@ -200,574 +151,571 @@
             font-weight: bold;
         }
         
-        .warning-text {
-            color: orange;
+        .instruction {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #00ff88;
+            text-align: center;
+            z-index: 200;
         }
         
-        .valid-text {
+        .instruction h2 {
             color: #00ff88;
+            margin-bottom: 15px;
         }
         
-        /* Scrollbar personalizado */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .instruction p {
+            margin-bottom: 20px;
+            color: #ccc;
         }
         
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+        .instruction button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #00ff88, #00cc70);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
         }
         
-        ::-webkit-scrollbar-thumb {
-            background: #00a8e8;
-            border-radius: 4px;
+        .instruction button:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Panel de controles -->
-        <div class="controls-panel">
-            <header>
-                <h1>🚀 Diseñador de Hábitats Espaciales</h1>
-                <p class="subtitle">NASA Artemis Mission Planning Tool</p>
-            </header>
-            
-            <!-- Configuración de Misión -->
-            <div class="section">
-                <h2>Configuración de Misión</h2>
-                
-                <div class="input-group">
-                    <label>Destino:</label>
-                    <select id="destination">
-                        <option value="moon">Luna (Moon)</option>
-                        <option value="mars">Marte (Mars)</option>
-                        <option value="transit">En Tránsito</option>
-                        <option value="orbit">Órbita Terrestre</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label>Número de Tripulantes: <span class="value-display" id="crew-display">4</span></label>
-                    <input type="range" id="crew-size" min="1" max="12" value="4">
-                </div>
-                
-                <div class="input-group">
-                    <label>Duración Misión (días): <span class="value-display" id="duration-display">30</span></label>
-                    <input type="range" id="mission-duration" min="7" max="365" value="30">
-                </div>
-            </div>
-            
-            <!-- Configuración de Estructura -->
-            <div class="section">
-                <h2>Estructura del Hábitat</h2>
-                
-                <div class="input-group">
-                    <label>Tipo de Hábitat:</label>
-                    <select id="habitat-type">
-                        <option value="metallic">Metálico (Rígido)</option>
-                        <option value="inflatable">Inflable</option>
-                        <option value="surface">Manufactura en Superficie</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label>Forma:</label>
-                    <select id="habitat-shape">
-                        <option value="cylinder">Cilindro</option>
-                        <option value="sphere">Esfera</option>
-                        <option value="torus">Toroide</option>
-                        <option value="box">Rectangular</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label>Diámetro (m): <span class="value-display" id="diameter-display">8</span></label>
-                    <input type="range" id="diameter" min="3" max="15" step="0.5" value="8">
-                </div>
-                
-                <div class="input-group">
-                    <label>Altura/Longitud (m): <span class="value-display" id="height-display">10</span></label>
-                    <input type="range" id="height" min="3" max="20" step="0.5" value="10">
-                </div>
-                
-                <div class="input-group">
-                    <label>Niveles: <span class="value-display" id="levels-display">2</span></label>
-                    <input type="range" id="levels" min="1" max="4" value="2">
-                </div>
-                
-                <button id="generate-habitat">Generar Hábitat</button>
-            </div>
-            
-            <!-- Áreas Funcionales -->
-            <div class="section">
-                <h2>Áreas Funcionales</h2>
-                
-                <div class="input-group">
-                    <label>Seleccionar Área:</label>
-                    <select id="area-type">
-                        <option value="sleep">Dormitorios</option>
-                        <option value="hygiene">Higiene</option>
-                        <option value="food">Comida y Cocina</option>
-                        <option value="exercise">Ejercicio</option>
-                        <option value="medical">Médica</option>
-                        <option value="work">Estación de Trabajo</option>
-                        <option value="storage">Almacenamiento</option>
-                        <option value="life-support">Soporte Vital</option>
-                        <option value="recreation">Recreación</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label>Área (m²): <span class="value-display" id="area-size-display">10</span></label>
-                    <input type="range" id="area-size" min="2" max="30" step="1" value="10">
-                </div>
-                
-                <button id="add-area">Agregar Área</button>
-                
-                <div class="areas-list" id="areas-list"></div>
-            </div>
-            
-            <div class="section">
-                <h2>Acciones</h2>
-                <button id="clear-all">Limpiar Todo</button>
-                <button id="export-design" style="background: linear-gradient(135deg, #00ff88, #00cc70);">Exportar Diseño</button>
-            </div>
+    <div id="container"></div>
+    
+    <div class="crosshair"></div>
+    
+    <div class="instruction" id="instruction">
+        <h2>🚀 Bienvenido al Hábitat Espacial</h2>
+        <p>Click en el botón para comenzar la exploración</p>
+        <p style="font-size: 12px; color: #888;">Mueve el mouse para mirar alrededor</p>
+        <button id="start-btn">Iniciar Exploración</button>
+    </div>
+    
+    <div class="hud">
+        <div class="hud-item">
+            <div class="hud-label">VELOCIDAD</div>
+            <div class="hud-value" id="speed">0.0 m/s</div>
         </div>
-        
-        <!-- Visor 3D -->
-        <div class="viewer">
-            <div id="canvas-container"></div>
-            
-            <div class="stats-overlay">
-                <h3>📊 Estadísticas</h3>
-                <div class="stat-row">
-                    <span class="stat-label">Volumen Total:</span>
-                    <span class="stat-value" id="total-volume">0 m³</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Área de Piso:</span>
-                    <span class="stat-value" id="floor-area">0 m²</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Área Asignada:</span>
-                    <span class="stat-value" id="assigned-area">0 m²</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Área Libre:</span>
-                    <span class="stat-value" id="free-area">0 m²</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Uso del Espacio:</span>
-                    <span class="stat-value" id="space-usage">0%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Estado:</span>
-                    <span class="stat-value valid-text" id="design-status">✓ Válido</span>
-                </div>
-            </div>
+        <div class="hud-item">
+            <div class="hud-label">ALTURA</div>
+            <div class="hud-value" id="height">1.8 m</div>
+        </div>
+        <div class="hud-item">
+            <div class="hud-label">OXÍGENO</div>
+            <div class="hud-value" id="oxygen">100%</div>
+        </div>
+    </div>
+    
+    <div class="controls-info">
+        <h3>⌨️ Controles</h3>
+        <p><span class="key">W A S D</span> Mover</p>
+        <p><span class="key">ESPACIO</span> Saltar</p>
+        <p><span class="key">SHIFT</span> Correr</p>
+        <p><span class="key">MOUSE</span> Mirar</p>
+        <p><span class="key">ESC</span> Liberar cursor</p>
+    </div>
+    
+    <div class="stats">
+        <h3>📊 Sistema</h3>
+        <div class="stat-row">
+            <span class="stat-label">FPS:</span>
+            <span class="stat-value" id="fps">60</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Posición X:</span>
+            <span class="stat-value" id="pos-x">0</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Posición Z:</span>
+            <span class="stat-value" id="pos-z">0</span>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Variables globales
         let scene, camera, renderer;
-        let habitat, habitatGroup;
-        let areas = [];
+        let moveForward = false, moveBackward = false;
+        let moveLeft = false, moveRight = false;
+        let canJump = false;
+        let isRunning = false;
         
-        // Datos de la misión
-        let missionData = {
-            destination: 'moon',
-            crewSize: 4,
-            duration: 30,
-            habitatType: 'metallic',
-            shape: 'cylinder',
-            diameter: 8,
-            height: 10,
-            levels: 2
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        let prevTime = performance.now();
+        
+        // Configuración del jugador
+        const playerHeight = 1.8;
+        const playerSpeed = 10.0;
+        const runMultiplier = 2.0;
+        const jumpVelocity = 8.0;
+        const gravity = -15.0;
+        
+        // FPS
+        let frameCount = 0;
+        let lastTime = Date.now();
+        let fps = 60;
+        
+        // Pointer Lock
+        let controls = {
+            isLocked: false
         };
         
-        // Requisitos mínimos por área (m² por persona)
-        const areaRequirements = {
-            sleep: 4,
-            hygiene: 2,
-            food: 3,
-            exercise: 5,
-            medical: 4,
-            work: 3,
-            storage: 2,
-            'life-support': 3,
-            recreation: 4
-        };
-        
-        // Nombres en español
-        const areaNames = {
-            sleep: 'Dormitorios',
-            hygiene: 'Higiene',
-            food: 'Comida',
-            exercise: 'Ejercicio',
-            medical: 'Médica',
-            work: 'Trabajo',
-            storage: 'Almacenamiento',
-            'life-support': 'Soporte Vital',
-            recreation: 'Recreación'
-        };
-        
-        // Inicializar escena
         function init() {
-            const container = document.getElementById('canvas-container');
+            const container = document.getElementById('container');
             
             // Escena
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000000);
+            scene.background = new THREE.Color(0x1a1a2e);
+            scene.fog = new THREE.Fog(0x1a1a2e, 0, 50);
             
-            // Cámara
+            // Cámara (altura de ojos)
             camera = new THREE.PerspectiveCamera(
-                60,
-                container.clientWidth / container.clientHeight,
+                75,
+                window.innerWidth / window.innerHeight,
                 0.1,
                 1000
             );
-            camera.position.set(15, 15, 15);
-            camera.lookAt(0, 0, 0);
+            camera.position.y = playerHeight;
             
             // Renderizador
             renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
             
             // Luces
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
             scene.add(ambientLight);
             
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(10, 10, 10);
-            scene.add(directionalLight);
+            const sunLight = new THREE.DirectionalLight(0xffffee, 0.8);
+            sunLight.position.set(10, 20, 5);
+            sunLight.castShadow = true;
+            sunLight.shadow.camera.left = -30;
+            sunLight.shadow.camera.right = 30;
+            sunLight.shadow.camera.top = 30;
+            sunLight.shadow.camera.bottom = -30;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            scene.add(sunLight);
             
-            const directionalLight2 = new THREE.DirectionalLight(0x4488ff, 0.4);
-            directionalLight2.position.set(-10, -10, -10);
-            scene.add(directionalLight2);
+            // Luz de punto (iluminación interior)
+            const pointLight = new THREE.PointLight(0x00ffff, 1, 50);
+            pointLight.position.set(0, 5, 0);
+            scene.add(pointLight);
             
-            // Grid
-            const gridHelper = new THREE.GridHelper(50, 50, 0x00a8e8, 0x444444);
-            scene.add(gridHelper);
-            
-            // Grupo para el hábitat
-            habitatGroup = new THREE.Group();
-            scene.add(habitatGroup);
-            
-            // Generar hábitat inicial
-            generateHabitat();
+            // Crear entorno
+            createFloor();
+            createHabitat();
+            createFurniture();
+            createEquipment();
             
             // Event listeners
             setupEventListeners();
             
-            // Resize handler
+            // Resize
             window.addEventListener('resize', onWindowResize);
             
-            // Controles de cámara con mouse
-            let isDragging = false;
-            let previousMousePosition = { x: 0, y: 0 };
-            
-            renderer.domElement.addEventListener('mousedown', (e) => {
-                isDragging = true;
-            });
-            
-            renderer.domElement.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    const deltaX = e.offsetX - previousMousePosition.x;
-                    const deltaY = e.offsetY - previousMousePosition.y;
-                    
-                    const rotationSpeed = 0.005;
-                    
-                    const newX = camera.position.x * Math.cos(deltaX * rotationSpeed) - camera.position.z * Math.sin(deltaX * rotationSpeed);
-                    const newZ = camera.position.x * Math.sin(deltaX * rotationSpeed) + camera.position.z * Math.cos(deltaX * rotationSpeed);
-                    
-                    camera.position.x = newX;
-                    camera.position.z = newZ;
-                    camera.lookAt(0, 0, 0);
-                }
-                
-                previousMousePosition = { x: e.offsetX, y: e.offsetY };
-            });
-            
-            renderer.domElement.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-            
-            // Zoom con rueda del mouse
-            renderer.domElement.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const zoomSpeed = 0.1;
-                const distance = camera.position.length();
-                const newDistance = distance + (e.deltaY > 0 ? zoomSpeed : -zoomSpeed);
-                
-                if (newDistance > 5 && newDistance < 50) {
-                    camera.position.multiplyScalar(newDistance / distance);
-                }
-            });
-            
-            // Animar
+            // Comenzar loop
             animate();
         }
         
-        // Generar hábitat
-        function generateHabitat() {
-            // Limpiar hábitat anterior
-            while(habitatGroup.children.length > 0) {
-                habitatGroup.remove(habitatGroup.children[0]);
-            }
-            
-            let geometry;
-            const material = new THREE.MeshStandardMaterial({
-                color: 0x00a8e8,
-                transparent: true,
-                opacity: 0.3,
-                side: THREE.DoubleSide,
-                wireframe: false
+        // Crear piso
+        function createFloor() {
+            const floorGeometry = new THREE.PlaneGeometry(40, 40);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x333344,
+                roughness: 0.8,
+                metalness: 0.2
             });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
             
-            const wireframeMaterial = new THREE.MeshBasicMaterial({
-                color: 0x00ffff,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.8
-            });
-            
-            const radius = missionData.diameter / 2;
-            const height = missionData.height;
-            
-            // Crear geometría según la forma
-            switch(missionData.shape) {
-                case 'cylinder':
-                    geometry = new THREE.CylinderGeometry(radius, radius, height, 32);
-                    break;
-                case 'sphere':
-                    geometry = new THREE.SphereGeometry(radius, 32, 32);
-                    break;
-                case 'torus':
-                    geometry = new THREE.TorusGeometry(radius, radius/3, 16, 32);
-                    break;
-                case 'box':
-                    geometry = new THREE.BoxGeometry(missionData.diameter, height, missionData.diameter);
-                    break;
-            }
-            
-            habitat = new THREE.Mesh(geometry, material);
-            const wireframe = new THREE.Mesh(geometry, wireframeMaterial);
-            
-            habitatGroup.add(habitat);
-            habitatGroup.add(wireframe);
-            
-            // Agregar niveles
-            for(let i = 0; i < missionData.levels; i++) {
-                const levelY = (i / (missionData.levels - 1) - 0.5) * height;
-                const levelGeometry = new THREE.CircleGeometry(radius * 0.95, 32);
-                const levelMaterial = new THREE.MeshBasicMaterial({
-                    color: 0x444444,
-                    side: THREE.DoubleSide,
-                    transparent: true,
-                    opacity: 0.2
-                });
-                const level = new THREE.Mesh(levelGeometry, levelMaterial);
-                level.rotation.x = Math.PI / 2;
-                level.position.y = levelY;
-                habitatGroup.add(level);
-            }
-            
-            updateStats();
+            // Grid
+            const gridHelper = new THREE.GridHelper(40, 40, 0x00ff88, 0x444444);
+            scene.add(gridHelper);
         }
         
-        // Configurar event listeners
+        // Crear hábitat (paredes y techo)
+        function createHabitat() {
+            const wallMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4a4a5a,
+                roughness: 0.7,
+                metalness: 0.3
+            });
+            
+            // Paredes
+            const wallThickness = 0.5;
+            const wallHeight = 6;
+            const habitatSize = 20;
+            
+            // Pared Norte
+            const wallNorth = new THREE.Mesh(
+                new THREE.BoxGeometry(habitatSize, wallHeight, wallThickness),
+                wallMaterial
+            );
+            wallNorth.position.set(0, wallHeight/2, -habitatSize/2);
+            wallNorth.castShadow = true;
+            wallNorth.receiveShadow = true;
+            scene.add(wallNorth);
+            
+            // Pared Sur
+            const wallSouth = new THREE.Mesh(
+                new THREE.BoxGeometry(habitatSize, wallHeight, wallThickness),
+                wallMaterial
+            );
+            wallSouth.position.set(0, wallHeight/2, habitatSize/2);
+            wallSouth.castShadow = true;
+            wallSouth.receiveShadow = true;
+            scene.add(wallSouth);
+            
+            // Pared Este
+            const wallEast = new THREE.Mesh(
+                new THREE.BoxGeometry(wallThickness, wallHeight, habitatSize),
+                wallMaterial
+            );
+            wallEast.position.set(habitatSize/2, wallHeight/2, 0);
+            wallEast.castShadow = true;
+            wallEast.receiveShadow = true;
+            scene.add(wallEast);
+            
+            // Pared Oeste
+            const wallWest = new THREE.Mesh(
+                new THREE.BoxGeometry(wallThickness, wallHeight, habitatSize),
+                wallMaterial
+            );
+            wallWest.position.set(-habitatSize/2, wallHeight/2, 0);
+            wallWest.castShadow = true;
+            wallWest.receiveShadow = true;
+            scene.add(wallWest);
+            
+            // Techo
+            const ceiling = new THREE.Mesh(
+                new THREE.PlaneGeometry(habitatSize, habitatSize),
+                new THREE.MeshStandardMaterial({
+                    color: 0x2a2a3a,
+                    roughness: 0.9
+                })
+            );
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.y = wallHeight;
+            ceiling.receiveShadow = true;
+            scene.add(ceiling);
+        }
+        
+        // Crear muebles (modelos 3D simples)
+        function createFurniture() {
+            // Mesa central
+            const table = new THREE.Group();
+            
+            // Superficie de mesa
+            const tableTop = new THREE.Mesh(
+                new THREE.BoxGeometry(3, 0.1, 1.5),
+                new THREE.MeshStandardMaterial({
+                    color: 0x8b7355,
+                    roughness: 0.6,
+                    metalness: 0.1
+                })
+            );
+            tableTop.position.y = 1;
+            tableTop.castShadow = true;
+            tableTop.receiveShadow = true;
+            table.add(tableTop);
+            
+            // Patas de mesa
+            const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 8);
+            const legMaterial = new THREE.MeshStandardMaterial({
+                color: 0x555555,
+                metalness: 0.8,
+                roughness: 0.3
+            });
+            
+            const positions = [
+                [-1.3, 0.5, -0.6],
+                [1.3, 0.5, -0.6],
+                [-1.3, 0.5, 0.6],
+                [1.3, 0.5, 0.6]
+            ];
+            
+            positions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeometry, legMaterial);
+                leg.position.set(...pos);
+                leg.castShadow = true;
+                table.add(leg);
+            });
+            
+            table.position.set(0, 0, 0);
+            scene.add(table);
+            
+            // Sillas
+            createChair(-2, 0, 2);
+            createChair(2, 0, 2);
+            createChair(-2, 0, -2);
+            createChair(2, 0, -2);
+        }
+        
+        // Crear silla
+        function createChair(x, y, z) {
+            const chair = new THREE.Group();
+            
+            const chairMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2a5a8a,
+                roughness: 0.5,
+                metalness: 0.3
+            });
+            
+            // Asiento
+            const seat = new THREE.Mesh(
+                new THREE.BoxGeometry(0.6, 0.1, 0.6),
+                chairMaterial
+            );
+            seat.position.y = 0.6;
+            seat.castShadow = true;
+            seat.receiveShadow = true;
+            chair.add(seat);
+            
+            // Respaldo
+            const back = new THREE.Mesh(
+                new THREE.BoxGeometry(0.6, 0.8, 0.1),
+                chairMaterial
+            );
+            back.position.set(0, 1, -0.25);
+            back.castShadow = true;
+            chair.add(back);
+            
+            // Patas
+            const legGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.6, 8);
+            const legMaterial = new THREE.MeshStandardMaterial({
+                color: 0x333333,
+                metalness: 0.7
+            });
+            
+            [[-0.25, 0.3, -0.25], [0.25, 0.3, -0.25],
+             [-0.25, 0.3, 0.25], [0.25, 0.3, 0.25]].forEach(pos => {
+                const leg = new THREE.Mesh(legGeometry, legMaterial);
+                leg.position.set(...pos);
+                leg.castShadow = true;
+                chair.add(leg);
+            });
+            
+            chair.position.set(x, y, z);
+            scene.add(chair);
+        }
+        
+        // Crear equipamiento
+        function createEquipment() {
+            // Computadora en la mesa
+            const computer = new THREE.Mesh(
+                new THREE.BoxGeometry(0.4, 0.3, 0.02),
+                new THREE.MeshStandardMaterial({
+                    color: 0x1a1a1a,
+                    emissive: 0x00ffff,
+                    emissiveIntensity: 0.3
+                })
+            );
+            computer.position.set(0, 1.2, 0);
+            computer.castShadow = true;
+            scene.add(computer);
+            
+            // Cajas de almacenamiento
+            for (let i = 0; i < 5; i++) {
+                const box = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.8, 0.8, 0.8),
+                    new THREE.MeshStandardMaterial({
+                        color: Math.random() * 0xffffff,
+                        roughness: 0.6,
+                        metalness: 0.4
+                    })
+                );
+                box.position.set(
+                    -8 + Math.random() * 2,
+                    0.4,
+                    -8 + i * 2
+                );
+                box.castShadow = true;
+                box.receiveShadow = true;
+                scene.add(box);
+            }
+            
+            // Cilindro de oxígeno
+            const oxygenTank = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.3, 0.3, 1.5, 16),
+                new THREE.MeshStandardMaterial({
+                    color: 0x00ff00,
+                    metalness: 0.9,
+                    roughness: 0.1
+                })
+            );
+            oxygenTank.position.set(8, 0.75, 8);
+            oxygenTank.castShadow = true;
+            scene.add(oxygenTank);
+        }
+        
+        // Event listeners
         function setupEventListeners() {
-            // Controles de sliders
-            document.getElementById('crew-size').addEventListener('input', (e) => {
-                missionData.crewSize = parseInt(e.target.value);
-                document.getElementById('crew-display').textContent = missionData.crewSize;
-                updateStats();
+            // Botón de inicio
+            document.getElementById('start-btn').addEventListener('click', () => {
+                document.getElementById('instruction').style.display = 'none';
+                renderer.domElement.requestPointerLock();
             });
             
-            document.getElementById('mission-duration').addEventListener('input', (e) => {
-                missionData.duration = parseInt(e.target.value);
-                document.getElementById('duration-display').textContent = missionData.duration;
+            // Pointer Lock
+            document.addEventListener('pointerlockchange', () => {
+                controls.isLocked = document.pointerLockElement === renderer.domElement;
             });
             
-            document.getElementById('diameter').addEventListener('input', (e) => {
-                missionData.diameter = parseFloat(e.target.value);
-                document.getElementById('diameter-display').textContent = missionData.diameter;
+            // Teclado
+            document.addEventListener('keydown', (e) => {
+                switch(e.code) {
+                    case 'KeyW': moveForward = true; break;
+                    case 'KeyS': moveBackward = true; break;
+                    case 'KeyA': moveLeft = true; break;
+                    case 'KeyD': moveRight = true; break;
+                    case 'Space':
+                        if (canJump) {
+                            velocity.y = jumpVelocity;
+                            canJump = false;
+                        }
+                        break;
+                    case 'ShiftLeft':
+                    case 'ShiftRight':
+                        isRunning = true;
+                        break;
+                }
             });
             
-            document.getElementById('height').addEventListener('input', (e) => {
-                missionData.height = parseFloat(e.target.value);
-                document.getElementById('height-display').textContent = missionData.height;
+            document.addEventListener('keyup', (e) => {
+                switch(e.code) {
+                    case 'KeyW': moveForward = false; break;
+                    case 'KeyS': moveBackward = false; break;
+                    case 'KeyA': moveLeft = false; break;
+                    case 'KeyD': moveRight = false; break;
+                    case 'ShiftLeft':
+                    case 'ShiftRight':
+                        isRunning = false;
+                        break;
+                }
             });
             
-            document.getElementById('levels').addEventListener('input', (e) => {
-                missionData.levels = parseInt(e.target.value);
-                document.getElementById('levels-display').textContent = missionData.levels;
-            });
-            
-            document.getElementById('area-size').addEventListener('input', (e) => {
-                document.getElementById('area-size-display').textContent = e.target.value;
-            });
-            
-            // Selectores
-            document.getElementById('destination').addEventListener('change', (e) => {
-                missionData.destination = e.target.value;
-            });
-            
-            document.getElementById('habitat-type').addEventListener('change', (e) => {
-                missionData.habitatType = e.target.value;
-            });
-            
-            document.getElementById('habitat-shape').addEventListener('change', (e) => {
-                missionData.shape = e.target.value;
-            });
-            
-            // Botones
-            document.getElementById('generate-habitat').addEventListener('click', generateHabitat);
-            
-            document.getElementById('add-area').addEventListener('click', addArea);
-            
-            document.getElementById('clear-all').addEventListener('click', () => {
-                areas = [];
-                updateAreasList();
-                updateStats();
-            });
-            
-            document.getElementById('export-design').addEventListener('click', exportDesign);
-        }
-        
-        // Agregar área funcional
-        function addArea() {
-            const areaType = document.getElementById('area-type').value;
-            const areaSize = parseFloat(document.getElementById('area-size').value);
-            
-            const minRequired = areaRequirements[areaType] * missionData.crewSize;
-            const isValid = areaSize >= minRequired;
-            
-            areas.push({
-                type: areaType,
-                name: areaNames[areaType],
-                size: areaSize,
-                minRequired: minRequired,
-                isValid: isValid
-            });
-            
-            updateAreasList();
-            updateStats();
-        }
-        
-        // Actualizar lista de áreas
-        function updateAreasList() {
-            const list = document.getElementById('areas-list');
-            list.innerHTML = '';
-            
-            areas.forEach((area, index) => {
-                const div = document.createElement('div');
-                div.className = `area-item ${area.isValid ? 'valid' : 'warning'}`;
-                div.innerHTML = `
-                    <div>
-                        <strong>${area.name}</strong><br>
-                        ${area.size} m² ${area.isValid ? '✓' : `⚠ (mín: ${area.minRequired.toFixed(1)} m²)`}
-                    </div>
-                    <button class="remove-btn" onclick="removeArea(${index})">✕</button>
-                `;
-                list.appendChild(div);
+            // Mouse
+            document.addEventListener('mousemove', (e) => {
+                if (!controls.isLocked) return;
+                
+                const movementX = e.movementX || 0;
+                const movementY = e.movementY || 0;
+                
+                camera.rotation.y -= movementX * 0.002;
+                camera.rotation.x -= movementY * 0.002;
+                
+                // Limitar rotación vertical
+                camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
             });
         }
         
-        // Remover área
-        function removeArea(index) {
-            areas.splice(index, 1);
-            updateAreasList();
-            updateStats();
+        // Actualizar HUD
+        function updateHUD() {
+            const speed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+            document.getElementById('speed').textContent = speed.toFixed(1) + ' m/s';
+            document.getElementById('height').textContent = camera.position.y.toFixed(1) + ' m';
+            document.getElementById('pos-x').textContent = camera.position.x.toFixed(1);
+            document.getElementById('pos-z').textContent = camera.position.z.toFixed(1);
+            document.getElementById('fps').textContent = Math.round(fps);
         }
         
-        // Actualizar estadísticas
-        function updateStats() {
-            const radius = missionData.diameter / 2;
-            const height = missionData.height;
-            
-            let totalVolume, floorArea;
-            
-            switch(missionData.shape) {
-                case 'cylinder':
-                    totalVolume = Math.PI * radius * radius * height;
-                    floorArea = Math.PI * radius * radius * missionData.levels;
-                    break;
-                case 'sphere':
-                    totalVolume = (4/3) * Math.PI * Math.pow(radius, 3);
-                    floorArea = Math.PI * radius * radius * missionData.levels;
-                    break;
-                case 'torus':
-                    const R = radius;
-                    const r = radius / 3;
-                    totalVolume = 2 * Math.PI * Math.PI * R * r * r;
-                    floorArea = 2 * Math.PI * R * missionData.levels;
-                    break;
-                case 'box':
-                    totalVolume = missionData.diameter * height * missionData.diameter;
-                    floorArea = missionData.diameter * missionData.diameter * missionData.levels;
-                    break;
-            }
-            
-            const assignedArea = areas.reduce((sum, area) => sum + area.size, 0);
-            const freeArea = floorArea - assignedArea;
-            const usage = (assignedArea / floorArea * 100).toFixed(1);
-            
-            const allValid = areas.every(area => area.isValid) && assignedArea <= floorArea;
-            
-            document.getElementById('total-volume').textContent = totalVolume.toFixed(1) + ' m³';
-            document.getElementById('floor-area').textContent = floorArea.toFixed(1) + ' m²';
-            document.getElementById('assigned-area').textContent = assignedArea.toFixed(1) + ' m²';
-            document.getElementById('free-area').textContent = freeArea.toFixed(1) + ' m²';
-            document.getElementById('space-usage').textContent = usage + '%';
-            
-            const statusElement = document.getElementById('design-status');
-            if (allValid && freeArea >= 0) {
-                statusElement.textContent = '✓ Válido';
-                statusElement.className = 'stat-value valid-text';
-            } else {
-                statusElement.textContent = '⚠ Revisar';
-                statusElement.className = 'stat-value warning-text';
+        // Calcular FPS
+        function calculateFPS() {
+            frameCount++;
+            const currentTime = Date.now();
+            if (currentTime - lastTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = currentTime;
             }
         }
         
-        // Exportar diseño
-        function exportDesign() {
-            const design = {
-                mission: missionData,
-                areas: areas,
-                timestamp: new Date().toISOString()
-            };
-            
-            const dataStr = JSON.stringify(design, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `habitat-design-${Date.now()}.json`;
-            link.click();
-            
-            alert('Diseño exportado exitosamente!');
-        }
-        
-        // Manejar resize
+        // Resize
         function onWindowResize() {
-            const container = document.getElementById('canvas-container');
-            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(window.innerWidth, window.innerHeight);
         }
         
         // Loop de animación
         function animate() {
             requestAnimationFrame(animate);
             
-            // Rotar lentamente el hábitat
-            habitatGroup.rotation.y += 0.002;
+            if (controls.isLocked) {
+                const time = performance.now();
+                const delta = (time - prevTime) / 1000;
+                
+                // Aplicar gravedad
+                velocity.y += gravity * delta;
+                
+                // Dirección de movimiento
+                direction.z = Number(moveForward) - Number(moveBackward);
+                direction.x = Number(moveRight) - Number(moveLeft);
+                direction.normalize();
+                
+                // Velocidad con o sin correr
+                const currentSpeed = isRunning ? playerSpeed * runMultiplier : playerSpeed;
+                
+                if (moveForward || moveBackward) {
+                    velocity.z = -direction.z * currentSpeed;
+                } else {
+                    velocity.z *= 0.9; // Fricción
+                }
+                
+                if (moveLeft || moveRight) {
+                    velocity.x = -direction.x * currentSpeed;
+                } else {
+                    velocity.x *= 0.9; // Fricción
+                }
+                
+                // Mover cámara
+                const forward = new THREE.Vector3(0, 0, -1);
+                forward.applyQuaternion(camera.quaternion);
+                forward.y = 0;
+                forward.normalize();
+                
+                const right = new THREE.Vector3(1, 0, 0);
+                right.applyQuaternion(camera.quaternion);
+                right.y = 0;
+                right.normalize();
+                
+                camera.position.addScaledVector(forward, velocity.z * delta);
+                camera.position.addScaledVector(right, velocity.x * delta);
+                camera.position.y += velocity.y * delta;
+                
+                // Colisión con el suelo
+                if (camera.position.y < playerHeight) {
+                    camera.position.y = playerHeight;
+                    velocity.y = 0;
+                    canJump = true;
+                }
+                
+                // Límites del hábitat
+                const limit = 9.5;
+                camera.position.x = Math.max(-limit, Math.min(limit, camera.position.x));
+                camera.position.z = Math.max(-limit, Math.min(limit, camera.position.z));
+                
+                prevTime = time;
+            }
             
+            updateHUD();
+            calculateFPS();
             renderer.render(scene, camera);
         }
         
