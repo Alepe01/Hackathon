@@ -3,776 +3,351 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diseñador de Hábitats Espaciales - NASA</title>
+    <title>Estación Lunar 3D - VR</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #0f0f1e 100%);
-            color: #fff;
-            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
         }
-        
-        .container {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            height: 100vh;
-        }
-        
-        /* Panel de controles */
-        .controls-panel {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            overflow-y: auto;
-            border-right: 2px solid #00a8e8;
-        }
-        
-        header {
-            margin-bottom: 30px;
-        }
-        
-        h1 {
-            font-size: 24px;
-            color: #00a8e8;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 12px;
-            color: #888;
-        }
-        
-        .section {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0, 168, 232, 0.3);
-        }
-        
-        .section h2 {
-            font-size: 16px;
-            color: #00a8e8;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .section h2::before {
-            content: "▶";
-            font-size: 12px;
-        }
-        
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
+        canvas {
             display: block;
-            font-size: 13px;
-            margin-bottom: 5px;
-            color: #ccc;
         }
-        
-        select, input[type="number"], input[type="range"] {
-            width: 100%;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(0, 168, 232, 0.5);
-            border-radius: 5px;
-            color: #fff;
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
             font-size: 14px;
+            line-height: 1.6;
+            z-index: 100;
         }
-        
-        input[type="range"] {
-            padding: 0;
-        }
-        
-        .value-display {
-            float: right;
-            color: #00ff88;
-            font-weight: bold;
-        }
-        
-        button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #00a8e8, #0077b6);
+        #vrButton {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            font-size: 16px;
+            background: #4a90e2;
+            color: white;
             border: none;
             border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.2s;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 168, 232, 0.4);
-        }
-        
-        .areas-list {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-        
-        .area-item {
-            background: rgba(0, 168, 232, 0.2);
-            padding: 8px;
-            border-radius: 5px;
-            margin-bottom: 5px;
-            font-size: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .area-item.warning {
-            background: rgba(255, 165, 0, 0.3);
-            border-left: 3px solid orange;
-        }
-        
-        .area-item.valid {
-            background: rgba(0, 255, 136, 0.2);
-            border-left: 3px solid #00ff88;
-        }
-        
-        .remove-btn {
-            background: #ff4444;
-            border: none;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-        
-        /* Visor 3D */
-        .viewer {
-            position: relative;
-            background: #000;
-        }
-        
-        #canvas-container {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .stats-overlay {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #00a8e8;
-            min-width: 200px;
-        }
-        
-        .stats-overlay h3 {
-            color: #00a8e8;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 12px;
-        }
-        
-        .stat-label {
-            color: #888;
-        }
-        
-        .stat-value {
-            color: #00ff88;
+            z-index: 100;
             font-weight: bold;
         }
-        
-        .warning-text {
-            color: orange;
+        #vrButton:hover {
+            background: #357abd;
         }
-        
-        .valid-text {
-            color: #00ff88;
-        }
-        
-        /* Scrollbar personalizado */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #00a8e8;
-            border-radius: 4px;
+        #vrButton:disabled {
+            background: #666;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Panel de controles -->
-        <div class="controls-panel">
-            <header>
-                <h1>🚀 Diseñador de Hábitats Espaciales</h1>
-                <p class="subtitle">NASA Artemis Mission Planning Tool</p>
-            </header>
-            
-            <!-- Configuración de Misión -->
-            <div class="section">
-                <h2>Configuración de Misión</h2>
-                
-                <div class="input-group">
-                    <label>Destino:</label>
-                    <select id="destination">
-                        <option value="moon">Luna (Moon)</option>
-                        <option value="mars">Marte (Mars)</option>
-                        <option value="transit">En Tránsito</option>
-                        <option value="orbit">Órbita Terrestre</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label>Número de Tripulantes: <span class="value-display" id="crew-display">4</span></label>
-                    <input type="range" id="crew-size" min="1" max="12" value="4">
-                </div>
-                
-                <div class="input-group">
-                    <label>Duración Misión (días): <span class="value-display" id="duration-display">30</span></label>
-                    <input type="range" id="mission-duration" min="7" max="365" value="30">
-                </div>
-            </div>
-            
-            <!-- Configuración de Estructura -->
-            <div class="section">
-                <h2>Estructura del Hábitat</h2>
-                
-                <div class="input-group">
-                    <label>Tipo de Hábitat:</label>
-                    <select id="habitat-type">
-                        <option value="metallic">Metálico (Rígido)</option>
-                        <option value="inflatable">Inflable</option>
-                        <option value="surface">Manufactura en Superficie</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label>Forma:</label>
-                    <select id="habitat-shape">
-                        <option value="cylinder">Cilindro</option>
-                        <option value="sphere">Esfera</option>
-                        <option value="torus">Toroide</option>
-                        <option value="box">Rectangular</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label>Diámetro (m): <span class="value-display" id="diameter-display">8</span></label>
-                    <input type="range" id="diameter" min="3" max="15" step="0.5" value="8">
-                </div>
-                
-                <div class="input-group">
-                    <label>Altura/Longitud (m): <span class="value-display" id="height-display">10</span></label>
-                    <input type="range" id="height" min="3" max="20" step="0.5" value="10">
-                </div>
-                
-                <div class="input-group">
-                    <label>Niveles: <span class="value-display" id="levels-display">2</span></label>
-                    <input type="range" id="levels" min="1" max="4" value="2">
-                </div>
-                
-                <button id="generate-habitat">Generar Hábitat</button>
-            </div>
-            
-            <!-- Áreas Funcionales -->
-            <div class="section">
-                <h2>Áreas Funcionales</h2>
-                
-                <div class="input-group">
-                    <label>Seleccionar Área:</label>
-                    <select id="area-type">
-                        <option value="sleep">Dormitorios</option>
-                        <option value="hygiene">Higiene</option>
-                        <option value="food">Comida y Cocina</option>
-                        <option value="exercise">Ejercicio</option>
-                        <option value="medical">Médica</option>
-                        <option value="work">Estación de Trabajo</option>
-                        <option value="storage">Almacenamiento</option>
-                        <option value="life-support">Soporte Vital</option>
-                        <option value="recreation">Recreación</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label>Área (m²): <span class="value-display" id="area-size-display">10</span></label>
-                    <input type="range" id="area-size" min="2" max="30" step="1" value="10">
-                </div>
-                
-                <button id="add-area">Agregar Área</button>
-                
-                <div class="areas-list" id="areas-list"></div>
-            </div>
-            
-            <div class="section">
-                <h2>Acciones</h2>
-                <button id="clear-all">Limpiar Todo</button>
-                <button id="export-design" style="background: linear-gradient(135deg, #00ff88, #00cc70);">Exportar Diseño</button>
-            </div>
-        </div>
-        
-        <!-- Visor 3D -->
-        <div class="viewer">
-            <div id="canvas-container"></div>
-            
-            <div class="stats-overlay">
-                <h3>📊 Estadísticas</h3>
-                <div class="stat-row">
-                    <span class="stat-label">Volumen Total:</span>
-                    <span class="stat-value" id="total-volume">0 m³</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Área de Piso:</span>
-                    <span class="stat-value" id="floor-area">0 m²</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Área Asignada:</span>
-                    <span class="stat-value" id="assigned-area">0 m²</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Área Libre:</span>
-                    <span class="stat-value" id="free-area">0 m²</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Uso del Espacio:</span>
-                    <span class="stat-value" id="space-usage">0%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Estado:</span>
-                    <span class="stat-value valid-text" id="design-status">✓ Válido</span>
-                </div>
-            </div>
-        </div>
+    <div id="controls">
+        <strong>Controles PC:</strong><br>
+        WASD - Mover<br>
+        Mouse - Girar cámara<br>
+        Espacio - Subir<br>
+        Shift - Bajar<br><br>
+        <strong>VR:</strong> Usa el botón abajo
     </div>
-
+    <button id="vrButton">ENTRAR A VR</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        // Variables globales
+    <script type="module">
         let scene, camera, renderer;
-        let habitat, habitatGroup;
-        let areas = [];
-        
-        // Datos de la misión
-        let missionData = {
-            destination: 'moon',
-            crewSize: 4,
-            duration: 30,
-            habitatType: 'metallic',
-            shape: 'cylinder',
-            diameter: 8,
-            height: 10,
-            levels: 2
-        };
-        
-        // Requisitos mínimos por área (m² por persona)
-        const areaRequirements = {
-            sleep: 4,
-            hygiene: 2,
-            food: 3,
-            exercise: 5,
-            medical: 4,
-            work: 3,
-            storage: 2,
-            'life-support': 3,
-            recreation: 4
-        };
-        
-        // Nombres en español
-        const areaNames = {
-            sleep: 'Dormitorios',
-            hygiene: 'Higiene',
-            food: 'Comida',
-            exercise: 'Ejercicio',
-            medical: 'Médica',
-            work: 'Trabajo',
-            storage: 'Almacenamiento',
-            'life-support': 'Soporte Vital',
-            recreation: 'Recreación'
-        };
-        
-        // Inicializar escena
+        let moveForward = false, moveBackward = false;
+        let moveLeft = false, moveRight = false;
+        let moveUp = false, moveDown = false;
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        let euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        let mouseX = 0, mouseY = 0;
+        let isPointerLocked = false;
+        let vrButton;
+        let isVRMode = false;
+
+        init();
+        animate();
+
         function init() {
-            const container = document.getElementById('canvas-container');
-            
-            // Escena
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000000);
-            
-            // Cámara
-            camera = new THREE.PerspectiveCamera(
-                60,
-                container.clientWidth / container.clientHeight,
-                0.1,
-                1000
-            );
-            camera.position.set(15, 15, 15);
-            camera.lookAt(0, 0, 0);
-            
-            // Renderizador
+            scene.background = new THREE.Color(0x000814);
+            scene.fog = new THREE.Fog(0x000814, 0, 500);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 20);
+
             renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(renderer.domElement);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.xr.enabled = true;
+            document.body.appendChild(renderer.domElement);
+
+            // Configurar botón VR
+            vrButton = document.getElementById('vrButton');
             
-            // Luces
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-            scene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(10, 10, 10);
-            scene.add(directionalLight);
-            
-            const directionalLight2 = new THREE.DirectionalLight(0x4488ff, 0.4);
-            directionalLight2.position.set(-10, -10, -10);
-            scene.add(directionalLight2);
-            
-            // Grid
-            const gridHelper = new THREE.GridHelper(50, 50, 0x00a8e8, 0x444444);
-            scene.add(gridHelper);
-            
-            // Grupo para el hábitat
-            habitatGroup = new THREE.Group();
-            scene.add(habitatGroup);
-            
-            // Generar hábitat inicial
-            generateHabitat();
-            
-            // Event listeners
-            setupEventListeners();
-            
-            // Resize handler
-            window.addEventListener('resize', onWindowResize);
-            
-            // Controles de cámara con mouse
-            let isDragging = false;
-            let previousMousePosition = { x: 0, y: 0 };
-            
-            renderer.domElement.addEventListener('mousedown', (e) => {
-                isDragging = true;
-            });
-            
-            renderer.domElement.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    const deltaX = e.offsetX - previousMousePosition.x;
-                    const deltaY = e.offsetY - previousMousePosition.y;
-                    
-                    const rotationSpeed = 0.005;
-                    
-                    const newX = camera.position.x * Math.cos(deltaX * rotationSpeed) - camera.position.z * Math.sin(deltaX * rotationSpeed);
-                    const newZ = camera.position.x * Math.sin(deltaX * rotationSpeed) + camera.position.z * Math.cos(deltaX * rotationSpeed);
-                    
-                    camera.position.x = newX;
-                    camera.position.z = newZ;
-                    camera.lookAt(0, 0, 0);
-                }
-                
-                previousMousePosition = { x: e.offsetX, y: e.offsetY };
-            });
-            
-            renderer.domElement.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-            
-            // Zoom con rueda del mouse
-            renderer.domElement.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const zoomSpeed = 0.1;
-                const distance = camera.position.length();
-                const newDistance = distance + (e.deltaY > 0 ? zoomSpeed : -zoomSpeed);
-                
-                if (newDistance > 5 && newDistance < 50) {
-                    camera.position.multiplyScalar(newDistance / distance);
-                }
-            });
-            
-            // Animar
-            animate();
-        }
-        
-        // Generar hábitat
-        function generateHabitat() {
-            // Limpiar hábitat anterior
-            while(habitatGroup.children.length > 0) {
-                habitatGroup.remove(habitatGroup.children[0]);
-            }
-            
-            let geometry;
-            const material = new THREE.MeshStandardMaterial({
-                color: 0x00a8e8,
-                transparent: true,
-                opacity: 0.3,
-                side: THREE.DoubleSide,
-                wireframe: false
-            });
-            
-            const wireframeMaterial = new THREE.MeshBasicMaterial({
-                color: 0x00ffff,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.8
-            });
-            
-            const radius = missionData.diameter / 2;
-            const height = missionData.height;
-            
-            // Crear geometría según la forma
-            switch(missionData.shape) {
-                case 'cylinder':
-                    geometry = new THREE.CylinderGeometry(radius, radius, height, 32);
-                    break;
-                case 'sphere':
-                    geometry = new THREE.SphereGeometry(radius, 32, 32);
-                    break;
-                case 'torus':
-                    geometry = new THREE.TorusGeometry(radius, radius/3, 16, 32);
-                    break;
-                case 'box':
-                    geometry = new THREE.BoxGeometry(missionData.diameter, height, missionData.diameter);
-                    break;
-            }
-            
-            habitat = new THREE.Mesh(geometry, material);
-            const wireframe = new THREE.Mesh(geometry, wireframeMaterial);
-            
-            habitatGroup.add(habitat);
-            habitatGroup.add(wireframe);
-            
-            // Agregar niveles
-            for(let i = 0; i < missionData.levels; i++) {
-                const levelY = (i / (missionData.levels - 1) - 0.5) * height;
-                const levelGeometry = new THREE.CircleGeometry(radius * 0.95, 32);
-                const levelMaterial = new THREE.MeshBasicMaterial({
-                    color: 0x444444,
-                    side: THREE.DoubleSide,
-                    transparent: true,
-                    opacity: 0.2
+            // Verificar si VR está disponible
+            if ('xr' in navigator) {
+                navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+                    if (supported) {
+                        vrButton.addEventListener('click', onVRButtonClick);
+                        vrButton.textContent = 'ENTRAR A VR';
+                    } else {
+                        vrButton.textContent = 'VR NO DISPONIBLE';
+                        vrButton.disabled = true;
+                    }
                 });
-                const level = new THREE.Mesh(levelGeometry, levelMaterial);
-                level.rotation.x = Math.PI / 2;
-                level.position.y = levelY;
-                habitatGroup.add(level);
-            }
-            
-            updateStats();
-        }
-        
-        // Configurar event listeners
-        function setupEventListeners() {
-            // Controles de sliders
-            document.getElementById('crew-size').addEventListener('input', (e) => {
-                missionData.crewSize = parseInt(e.target.value);
-                document.getElementById('crew-display').textContent = missionData.crewSize;
-                updateStats();
-            });
-            
-            document.getElementById('mission-duration').addEventListener('input', (e) => {
-                missionData.duration = parseInt(e.target.value);
-                document.getElementById('duration-display').textContent = missionData.duration;
-            });
-            
-            document.getElementById('diameter').addEventListener('input', (e) => {
-                missionData.diameter = parseFloat(e.target.value);
-                document.getElementById('diameter-display').textContent = missionData.diameter;
-            });
-            
-            document.getElementById('height').addEventListener('input', (e) => {
-                missionData.height = parseFloat(e.target.value);
-                document.getElementById('height-display').textContent = missionData.height;
-            });
-            
-            document.getElementById('levels').addEventListener('input', (e) => {
-                missionData.levels = parseInt(e.target.value);
-                document.getElementById('levels-display').textContent = missionData.levels;
-            });
-            
-            document.getElementById('area-size').addEventListener('input', (e) => {
-                document.getElementById('area-size-display').textContent = e.target.value;
-            });
-            
-            // Selectores
-            document.getElementById('destination').addEventListener('change', (e) => {
-                missionData.destination = e.target.value;
-            });
-            
-            document.getElementById('habitat-type').addEventListener('change', (e) => {
-                missionData.habitatType = e.target.value;
-            });
-            
-            document.getElementById('habitat-shape').addEventListener('change', (e) => {
-                missionData.shape = e.target.value;
-            });
-            
-            // Botones
-            document.getElementById('generate-habitat').addEventListener('click', generateHabitat);
-            
-            document.getElementById('add-area').addEventListener('click', addArea);
-            
-            document.getElementById('clear-all').addEventListener('click', () => {
-                areas = [];
-                updateAreasList();
-                updateStats();
-            });
-            
-            document.getElementById('export-design').addEventListener('click', exportDesign);
-        }
-        
-        // Agregar área funcional
-        function addArea() {
-            const areaType = document.getElementById('area-type').value;
-            const areaSize = parseFloat(document.getElementById('area-size').value);
-            
-            const minRequired = areaRequirements[areaType] * missionData.crewSize;
-            const isValid = areaSize >= minRequired;
-            
-            areas.push({
-                type: areaType,
-                name: areaNames[areaType],
-                size: areaSize,
-                minRequired: minRequired,
-                isValid: isValid
-            });
-            
-            updateAreasList();
-            updateStats();
-        }
-        
-        // Actualizar lista de áreas
-        function updateAreasList() {
-            const list = document.getElementById('areas-list');
-            list.innerHTML = '';
-            
-            areas.forEach((area, index) => {
-                const div = document.createElement('div');
-                div.className = `area-item ${area.isValid ? 'valid' : 'warning'}`;
-                div.innerHTML = `
-                    <div>
-                        <strong>${area.name}</strong><br>
-                        ${area.size} m² ${area.isValid ? '✓' : `⚠ (mín: ${area.minRequired.toFixed(1)} m²)`}
-                    </div>
-                    <button class="remove-btn" onclick="removeArea(${index})">✕</button>
-                `;
-                list.appendChild(div);
-            });
-        }
-        
-        // Remover área
-        function removeArea(index) {
-            areas.splice(index, 1);
-            updateAreasList();
-            updateStats();
-        }
-        
-        // Actualizar estadísticas
-        function updateStats() {
-            const radius = missionData.diameter / 2;
-            const height = missionData.height;
-            
-            let totalVolume, floorArea;
-            
-            switch(missionData.shape) {
-                case 'cylinder':
-                    totalVolume = Math.PI * radius * radius * height;
-                    floorArea = Math.PI * radius * radius * missionData.levels;
-                    break;
-                case 'sphere':
-                    totalVolume = (4/3) * Math.PI * Math.pow(radius, 3);
-                    floorArea = Math.PI * radius * radius * missionData.levels;
-                    break;
-                case 'torus':
-                    const R = radius;
-                    const r = radius / 3;
-                    totalVolume = 2 * Math.PI * Math.PI * R * r * r;
-                    floorArea = 2 * Math.PI * R * missionData.levels;
-                    break;
-                case 'box':
-                    totalVolume = missionData.diameter * height * missionData.diameter;
-                    floorArea = missionData.diameter * missionData.diameter * missionData.levels;
-                    break;
-            }
-            
-            const assignedArea = areas.reduce((sum, area) => sum + area.size, 0);
-            const freeArea = floorArea - assignedArea;
-            const usage = (assignedArea / floorArea * 100).toFixed(1);
-            
-            const allValid = areas.every(area => area.isValid) && assignedArea <= floorArea;
-            
-            document.getElementById('total-volume').textContent = totalVolume.toFixed(1) + ' m³';
-            document.getElementById('floor-area').textContent = floorArea.toFixed(1) + ' m²';
-            document.getElementById('assigned-area').textContent = assignedArea.toFixed(1) + ' m²';
-            document.getElementById('free-area').textContent = freeArea.toFixed(1) + ' m²';
-            document.getElementById('space-usage').textContent = usage + '%';
-            
-            const statusElement = document.getElementById('design-status');
-            if (allValid && freeArea >= 0) {
-                statusElement.textContent = '✓ Válido';
-                statusElement.className = 'stat-value valid-text';
             } else {
-                statusElement.textContent = '⚠ Revisar';
-                statusElement.className = 'stat-value warning-text';
+                vrButton.textContent = 'VR NO SOPORTADO';
+                vrButton.disabled = true;
+            }
+
+            // Luces
+            const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+            sunLight.position.set(50, 100, 50);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            sunLight.shadow.camera.near = 0.5;
+            sunLight.shadow.camera.far = 500;
+            sunLight.shadow.camera.left = -100;
+            sunLight.shadow.camera.right = 100;
+            sunLight.shadow.camera.top = 100;
+            sunLight.shadow.camera.bottom = -100;
+            scene.add(sunLight);
+
+            // Piso lunar
+            const floorGeometry = new THREE.PlaneGeometry(200, 200, 50, 50);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8a8a8a,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            
+            const vertices = floorGeometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                vertices[i + 2] += Math.random() * 0.5;
+            }
+            floorGeometry.attributes.position.needsUpdate = true;
+            floorGeometry.computeVertexNormals();
+            
+            scene.add(floor);
+
+            // Primera cúpula (grande)
+            const dome1Geometry = new THREE.SphereGeometry(8, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+            const dome1Material = new THREE.MeshStandardMaterial({
+                color: 0x2a4858,
+                roughness: 0.3,
+                metalness: 0.8,
+                transparent: true,
+                opacity: 0.7,
+                side: THREE.DoubleSide
+            });
+            const dome1 = new THREE.Mesh(dome1Geometry, dome1Material);
+            dome1.position.set(-12, 0, 0);
+            dome1.castShadow = true;
+            dome1.receiveShadow = true;
+            scene.add(dome1);
+
+            // Marco de la cúpula 1
+            const frameGeometry1 = new THREE.TorusGeometry(8, 0.2, 8, 32);
+            const frameMaterial = new THREE.MeshStandardMaterial({
+                color: 0xcccccc,
+                roughness: 0.2,
+                metalness: 0.9
+            });
+            const frame1 = new THREE.Mesh(frameGeometry1, frameMaterial);
+            frame1.position.set(-12, 0, 0);
+            frame1.rotation.x = Math.PI / 2;
+            frame1.castShadow = true;
+            scene.add(frame1);
+
+            // Segunda cúpula (mediana)
+            const dome2Geometry = new THREE.SphereGeometry(6, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+            const dome2Material = new THREE.MeshStandardMaterial({
+                color: 0x3a5868,
+                roughness: 0.3,
+                metalness: 0.8,
+                transparent: true,
+                opacity: 0.7,
+                side: THREE.DoubleSide
+            });
+            const dome2 = new THREE.Mesh(dome2Geometry, dome2Material);
+            dome2.position.set(10, 0, -8);
+            dome2.castShadow = true;
+            dome2.receiveShadow = true;
+            scene.add(dome2);
+
+            // Marco de la cúpula 2
+            const frame2 = new THREE.Mesh(
+                new THREE.TorusGeometry(6, 0.15, 8, 32),
+                frameMaterial
+            );
+            frame2.position.set(10, 0, -8);
+            frame2.rotation.x = Math.PI / 2;
+            frame2.castShadow = true;
+            scene.add(frame2);
+
+            // Túnel conector
+            const tunnelGeometry = new THREE.CylinderGeometry(2, 2, 12, 16);
+            const tunnelMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4a5858,
+                roughness: 0.5,
+                metalness: 0.7
+            });
+            const tunnel = new THREE.Mesh(tunnelGeometry, tunnelMaterial);
+            tunnel.position.set(-1, 1.5, -4);
+            tunnel.rotation.z = Math.PI / 2;
+            tunnel.castShadow = true;
+            tunnel.receiveShadow = true;
+            scene.add(tunnel);
+
+            // Luces interiores en las cúpulas
+            const light1 = new THREE.PointLight(0x00ffff, 1, 20);
+            light1.position.set(-12, 4, 0);
+            scene.add(light1);
+
+            const light2 = new THREE.PointLight(0x00ff88, 1, 15);
+            light2.position.set(10, 3, -8);
+            scene.add(light2);
+
+            // Agregar estrellas
+            const starsGeometry = new THREE.BufferGeometry();
+            const starVertices = [];
+            for (let i = 0; i < 3000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = Math.random() * 500 + 100;
+                const z = (Math.random() - 0.5) * 2000;
+                starVertices.push(x, y, z);
+            }
+            starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1 });
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+
+            // Controles de teclado
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+            document.addEventListener('click', () => {
+                if (!isVRMode) {
+                    document.body.requestPointerLock();
+                }
+            });
+            document.addEventListener('pointerlockchange', () => {
+                isPointerLocked = document.pointerLockElement === document.body;
+            });
+            document.addEventListener('mousemove', onMouseMove);
+
+            window.addEventListener('resize', onWindowResize);
+
+            // Listener para cuando se sale de VR
+            renderer.xr.addEventListener('sessionstart', () => {
+                isVRMode = true;
+                vrButton.textContent = 'SALIR DE VR';
+            });
+            
+            renderer.xr.addEventListener('sessionend', () => {
+                isVRMode = false;
+                vrButton.textContent = 'ENTRAR A VR';
+            });
+        }
+
+        async function onVRButtonClick() {
+            if (!isVRMode) {
+                const sessionInit = {
+                    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking']
+                };
+                const session = await navigator.xr.requestSession('immersive-vr', sessionInit);
+                renderer.xr.setSession(session);
+            } else {
+                renderer.xr.getSession().end();
             }
         }
-        
-        // Exportar diseño
-        function exportDesign() {
-            const design = {
-                mission: missionData,
-                areas: areas,
-                timestamp: new Date().toISOString()
-            };
-            
-            const dataStr = JSON.stringify(design, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `habitat-design-${Date.now()}.json`;
-            link.click();
-            
-            alert('Diseño exportado exitosamente!');
+
+        function onKeyDown(e) {
+            switch(e.code) {
+                case 'KeyW': moveForward = true; break;
+                case 'KeyS': moveBackward = true; break;
+                case 'KeyA': moveLeft = true; break;
+                case 'KeyD': moveRight = true; break;
+                case 'Space': moveUp = true; e.preventDefault(); break;
+                case 'ShiftLeft': moveDown = true; break;
+            }
         }
-        
-        // Manejar resize
+
+        function onKeyUp(e) {
+            switch(e.code) {
+                case 'KeyW': moveForward = false; break;
+                case 'KeyS': moveBackward = false; break;
+                case 'KeyA': moveLeft = false; break;
+                case 'KeyD': moveRight = false; break;
+                case 'Space': moveUp = false; break;
+                case 'ShiftLeft': moveDown = false; break;
+            }
+        }
+
+        function onMouseMove(e) {
+            if (!isPointerLocked) return;
+            
+            mouseX = e.movementX || 0;
+            mouseY = e.movementY || 0;
+
+            euler.setFromQuaternion(camera.quaternion);
+            euler.y -= mouseX * 0.002;
+            euler.x -= mouseY * 0.002;
+            euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+            camera.quaternion.setFromEuler(euler);
+        }
+
         function onWindowResize() {
-            const container = document.getElementById('canvas-container');
-            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(window.innerWidth, window.innerHeight);
         }
-        
-        // Loop de animación
+
         function animate() {
-            requestAnimationFrame(animate);
-            
-            // Rotar lentamente el hábitat
-            habitatGroup.rotation.y += 0.002;
-            
+            renderer.setAnimationLoop(render);
+        }
+
+        function render() {
+            // Solo aplicar movimiento de teclado si no estamos en VR
+            if (!isVRMode) {
+                velocity.x -= velocity.x * 10.0 * 0.016;
+                velocity.z -= velocity.z * 10.0 * 0.016;
+                velocity.y -= velocity.y * 10.0 * 0.016;
+
+                direction.z = Number(moveForward) - Number(moveBackward);
+                direction.x = Number(moveRight) - Number(moveLeft);
+                direction.y = Number(moveUp) - Number(moveDown);
+                direction.normalize();
+
+                if (moveForward || moveBackward) velocity.z -= direction.z * 100.0 * 0.016;
+                if (moveLeft || moveRight) velocity.x -= direction.x * 100.0 * 0.016;
+                if (moveUp || moveDown) velocity.y += direction.y * 100.0 * 0.016;
+
+                camera.translateX(-velocity.x * 0.016);
+                camera.translateY(velocity.y * 0.016);
+                camera.translateZ(-velocity.z * 0.016);
+
+                if (camera.position.y < 2) camera.position.y = 2;
+            }
+
             renderer.render(scene, camera);
         }
-        
-        // Iniciar
-        init();
     </script>
 </body>
 </html>
